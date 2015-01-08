@@ -24,7 +24,8 @@
         "ext-gettext": "*",
         "phpunit/phpunit": "~4.4",
         "zendframework/zend-i18n": "~2.2",
-        "symfony/translation": "~2.6"
+        "symfony/translation": "~2.6",
+        "satooshi/php-coveralls": "0.6.*"
     },
     "extra": {
         "branch-alias": {
