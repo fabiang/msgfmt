@@ -24,4 +24,8 @@ after_script:
   - ./tests/upload_artefacts.sh
     
 matrix:
-    fast_finish: true
+  fast_finish: true
+
+addons:
+  code_climate:
+    repo_token: 7967773a24f5de425b8a37fffe81be549b2b7df0071f183b681dd922d0b39fc3
