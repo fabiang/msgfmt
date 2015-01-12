@@ -120,7 +120,7 @@ class Lexer implements LexerInterface
     /**
      * Scan for text on single lines.
      *
-     * @return TokenInterface|null
+     * @return Token|null
      */
     protected function scanText()
     {
@@ -130,7 +130,7 @@ class Lexer implements LexerInterface
     /**
      * Scan for translation id.
      *
-     * @return TokenInterface|null
+     * @return Token|null
      */
     protected function scanId()
     {
@@ -140,7 +140,7 @@ class Lexer implements LexerInterface
     /**
      * Scan for translation id for plural translations.
      *
-     * @return TokenInterface|null
+     * @return Token|null
      */
     protected function scanIdPlural()
     {
@@ -150,7 +150,7 @@ class Lexer implements LexerInterface
     /**
      * Scan for translation strings for plural translations.
      *
-     * @return TokenInterface|null
+     * @return Token|null
      */
     protected function scanStringPlural()
     {
@@ -167,7 +167,7 @@ class Lexer implements LexerInterface
      * </code>
      *
      * @param string $type
-     * @return TokenInterface|null
+     * @return Token|null
      */
     protected function scanObject($type)
     {
@@ -177,7 +177,7 @@ class Lexer implements LexerInterface
     /**
      * Scan for translation string.
      *
-     * @return TokenInterface|null
+     * @return Token|null
      */
     protected function scanString()
     {
@@ -187,7 +187,7 @@ class Lexer implements LexerInterface
     /**
      * Scan for an extraced comment.
      *
-     * @return TokenInterface|null
+     * @return Token|null
      */
     protected function scanExtractedComment()
     {
@@ -197,7 +197,7 @@ class Lexer implements LexerInterface
     /**
      * Scan for a reference comment.
      *
-     * @return TokenInterface|null
+     * @return Token|null
      */
     protected function scanReference()
     {
@@ -207,7 +207,7 @@ class Lexer implements LexerInterface
     /**
      * Scan for a flag comment.
      *
-     * @return TokenInterface|null
+     * @return Token|null
      */
     protected function scanFlag()
     {
@@ -217,7 +217,7 @@ class Lexer implements LexerInterface
     /**
      * Scan for a previous translated comment.
      *
-     * @return TokenInterface|null
+     * @return Token|null
      */
     protected function scanPreviousTranslated()
     {
@@ -227,7 +227,7 @@ class Lexer implements LexerInterface
     /**
      * scan for a translator comment.
      *
-     * @return TokenInterface|null
+     * @return Token|null
      */
     protected function scanTranslatorComment()
     {
@@ -239,7 +239,7 @@ class Lexer implements LexerInterface
      *
      * @param string $type    Token type
      * @param string $pattern Patter for matching
-     * @return TokenInterface|null
+     * @return Token|null
      */
     protected function scan($type, $pattern)
     {
