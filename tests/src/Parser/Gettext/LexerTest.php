@@ -42,7 +42,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
      * @covers ::scanFlag
      * @covers ::scanPreviousTranslated
      * @covers ::scanTranslatorComment
-     * @covers ::scanComment
+     * @covers ::scan
      * @uses Fabiang\Msgfmt\Parser\Gettext\Lexer::__construct
      * @uses Fabiang\Msgfmt\Parser\Gettext\Lexer\Token
      * @dataProvider provideInput

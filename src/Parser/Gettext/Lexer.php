@@ -47,7 +47,7 @@ class Lexer implements LexerInterface
     /**
      * Input data.
      *
-     * @var string
+     * @var array
      */
     protected $input;
 
@@ -65,6 +65,11 @@ class Lexer implements LexerInterface
      */
     protected $lineno = 1;
 
+    /**
+     * Constructor.
+     *
+     * @param string $input
+     */
     public function __construct($input)
     {
         // we normalize the line breaks, explode the string by the line break and remove empty lines
@@ -83,7 +88,7 @@ class Lexer implements LexerInterface
     /**
      * Scan for next token.
      *
-     * @return TokenInterface
+     * @return TokenInterface|null
      */
     protected function getNextToken()
     {
@@ -115,17 +120,11 @@ class Lexer implements LexerInterface
     /**
      * Scan for text on single lines.
      *
-     * @param string $line
      * @return TokenInterface
      */
     protected function scanText()
     {
-        $matches = array();
-        if (preg_match('/^"(.+)"$/', $this->line, $matches)) {
-            return $this->takeToken('text', $matches[1]);
-        }
-
-        return null;
+        return $this->scan('text', '/^"(.+)"$/');
     }
 
     /**
@@ -155,12 +154,7 @@ class Lexer implements LexerInterface
      */
     protected function scanStringPlural()
     {
-        $matches = array();
-        if (preg_match("/^msgstr\[\d+\] \"(.+)\"$/", $this->line, $matches)) {
-            return $this->takeToken('msgstr_plural', $matches[1]);
-        }
-
-        return null;
+        return $this->scan('msgstr_plural', '/^msgstr\[\d+\] "(.+)"$/');
     }
 
     /**
@@ -177,14 +171,8 @@ class Lexer implements LexerInterface
      */
     protected function scanObject($type)
     {
-        $matches = array();
-        if (preg_match("/^$type \"(.+)\"$/", $this->line, $matches)) {
-            return $this->takeToken($type, $matches[1]);
-        }
-
-        return null;
+        return $this->scan($type, "/^$type \"(.+)\"$/");
     }
-
 
     /**
      * Scan for translation string.
@@ -203,7 +191,7 @@ class Lexer implements LexerInterface
      */
     protected function scanExtractedComment()
     {
-        return $this->scanComment('extracted_comment', '/^#\.\s*(.+)\s*$/');
+        return $this->scan('extracted_comment', '/^#\.\s*(.+)\s*$/');
     }
 
     /**
@@ -213,7 +201,7 @@ class Lexer implements LexerInterface
      */
     protected function scanReference()
     {
-        return $this->scanComment('reference', '/^#:\s*(.+)\s*$/');
+        return $this->scan('reference', '/^#:\s*(.+)\s*$/');
     }
 
     /**
@@ -223,7 +211,7 @@ class Lexer implements LexerInterface
      */
     protected function scanFlag()
     {
-        return $this->scanComment('flag', '/^#,\s*(.+)\s*$/');
+        return $this->scan('flag', '/^#,\s*(.+)\s*$/');
     }
 
     /**
@@ -233,7 +221,7 @@ class Lexer implements LexerInterface
      */
     protected function scanPreviousTranslated()
     {
-        return $this->scanComment('previous_translated', '/^#\|\s*(.+)\s*$/');
+        return $this->scan('previous_translated', '/^#\|\s*(.+)\s*$/');
     }
 
     /**
@@ -243,17 +231,17 @@ class Lexer implements LexerInterface
      */
     protected function scanTranslatorComment()
     {
-        return $this->scanComment('comment', '/^#\s*(.+)\s*$/');
+        return $this->scan('comment', '/^#\s*(.+)\s*$/');
     }
 
     /**
-     * Scan for a comment.
+     * Scan for a pattern.
      *
-     * @param string $type    Comment type
-     * @param string $pattern Patter for match comment
+     * @param string $type    Token type
+     * @param string $pattern Patter for matching
      * @return TokenInterface
      */
-    protected function scanComment($type, $pattern)
+    protected function scan($type, $pattern)
     {
         $matches = array();
         if (preg_match($pattern, $this->line, $matches)) {
@@ -268,7 +256,7 @@ class Lexer implements LexerInterface
      *
      * @param string $type token type
      * @param string $value token value
-     * @return Token
+     * @return TokenInterface
      */
     public function takeToken($type, $value = null)
     {
