@@ -31,14 +31,34 @@
  * @author Fabian Grutschus <f.grutschus@lubyte.de>
  */
 
-namespace Fabiang\Msgfmt\Writer;
+namespace Fabiang\Msgfmt\Parser\Gettext\Lexer;
 
 /**
- * Description of Parser
+ *
  *
  * @author Fabian Grutschus <f.grutschus@lubyte.de>
  */
-class GettextBinary
+interface TokenInterface
 {
 
+    /**
+     * Get token type.
+     *
+     * @return string
+     */
+    public function getType();
+
+    /**
+     * Get line number.
+     *
+     * @return integer
+     */
+    public function getLine();
+
+    /**
+     * Get value.
+     *
+     * @return string
+     */
+    public function getValue();
 }

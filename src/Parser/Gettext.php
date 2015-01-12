@@ -3,7 +3,7 @@
 /**
  * Msgmft library.
  *
- * Copyright (c) 2014 Fabian Grutschus
+ * Copyright (c) 2015 Fabian Grutschus
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,9 @@
 
 namespace Fabiang\Msgfmt\Parser;
 
+use Fabiang\Msgfmt\Translation\TranslationCollection;
+use Fabiang\Msgfmt\Translation\Translation;
+
 /**
  *
  *
@@ -43,7 +46,19 @@ class Gettext implements ParserInterface
 
     public function parse($string)
     {
+        $collection = new TranslationCollection;
 
+        $normalizedString = str_replace(array("\r\n", "\r"), "\n", $string);
+        $lines            = explode("\n", $normalizedString);
+
+        foreach ($lines as $line) {
+            // skip new lines
+            if ('' === $line) {
+                continue;
+            }
+        }
+
+        return $collection;
     }
 
     public function parseStream($stream)

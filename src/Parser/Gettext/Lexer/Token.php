@@ -31,14 +31,77 @@
  * @author Fabian Grutschus <f.grutschus@lubyte.de>
  */
 
-namespace Fabiang\Msgfmt\Writer;
+namespace Fabiang\Msgfmt\Parser\Gettext\Lexer;
 
 /**
- * Description of Parser
+ *
  *
  * @author Fabian Grutschus <f.grutschus@lubyte.de>
  */
-class GettextBinary
+class Token implements TokenInterface
 {
 
+    /**
+     * Token type.
+     *
+     * @var string
+     */
+    protected $type;
+
+    /**
+     * Line
+     *
+     * @var integer
+     */
+    protected $line;
+
+    /**
+     * Value.
+     *
+     * @var string
+     */
+    protected $value;
+
+    /**
+     *
+     * @param string  $type
+     * @param integer $line
+     * @param string  $value
+     */
+    public function __construct($type, $line, $value = null)
+    {
+        $this->type  = $type;
+        $this->line  = (int) $line;
+        $this->value = $value;
+    }
+
+    /**
+     * Get token type.
+     *
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * Get line number.
+     *
+     * @return integer
+     */
+    public function getLine()
+    {
+        return $this->line;
+    }
+
+    /**
+     * Get value.
+     *
+     * @return string
+     */
+    public function getValue()
+    {
+        return $this->value;
+    }
 }
