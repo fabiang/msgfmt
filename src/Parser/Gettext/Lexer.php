@@ -158,23 +158,6 @@ class Lexer implements LexerInterface
     }
 
     /**
-     * Scan for an object.
-     *
-     * Generic method for scanning for objects.
-     * The object must have the following form:
-     * <code>
-     * type "string"
-     * </code>
-     *
-     * @param string $type
-     * @return Token|null
-     */
-    protected function scanObject($type)
-    {
-        return $this->scan($type, "/^$type \"(.+)\"$/");
-    }
-
-    /**
      * Scan for translation string.
      *
      * @return Token|null
@@ -232,6 +215,23 @@ class Lexer implements LexerInterface
     protected function scanTranslatorComment()
     {
         return $this->scan('comment', '/^#\s*(.+)\s*$/');
+    }
+
+    /**
+     * Scan for an object.
+     *
+     * Generic method for scanning for objects.
+     * The object must have the following form:
+     * <code>
+     * type "string"
+     * </code>
+     *
+     * @param string $type
+     * @return Token|null
+     */
+    protected function scanObject($type)
+    {
+        return $this->scan($type, "/^$type \"(.+)\"$/");
     }
 
     /**
