@@ -1,5 +1,36 @@
 <?php
 
+/**
+ * Msgmft library.
+ *
+ * Copyright (c) 2015 Fabian Grutschus
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * o Redistributions of source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer.
+ * o Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in the
+ *   documentation and/or other materials provided with the distribution.|
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @author Fabian Grutschus <f.grutschus@lubyte.de>
+ */
+
 namespace Fabiang\Msgfmt\Parser\Gettext;
 
 /**
@@ -28,13 +59,13 @@ class LexerTest extends \PHPUnit_Framework_TestCase
      * @covers ::getAdvancedToken
      * @covers ::nextLine
      * @covers ::takeToken
-     * @covers ::getAdvancedToken
      * @covers ::getNextToken
+     * @covers ::getLineNumber
+     * @covers ::getLine
      * @covers ::scanText
      * @covers ::scanId
      * @covers ::scanString
      * @covers ::scanObject
-     * @covers ::getCurrentLine
      * @covers ::scanIdPlural
      * @covers ::scanStringPlural
      * @covers ::scanExtractedComment
@@ -54,15 +85,17 @@ class LexerTest extends \PHPUnit_Framework_TestCase
         foreach ($expected as $expectedToken) {
             $currentToken = $object->getAdvancedToken();
 
-            $expectedType  = $expectedToken['type'];
-            $expectedLine  = $expectedToken['lineno'];
-            $expectedValue = $expectedToken['value'];
+            $expectedType   = $expectedToken['type'];
+            $expectedLineNo = $expectedToken['lineno'];
+            $expectedLine   = $expectedToken['line'];
+            $expectedValue  = $expectedToken['value'];
 
             $this->assertInstanceOf('Fabiang\Msgfmt\Parser\Gettext\Lexer\Token', $currentToken);
             $this->assertSame($expectedType, $currentToken->getType());
-            $this->assertSame($expectedLine, $currentToken->getLine());
+            $this->assertSame($expectedLineNo, $currentToken->getLine());
             $this->assertSame($expectedValue, $currentToken->getValue());
-            $this->assertSame($expectedLine, $object->getCurrentLine());
+            $this->assertSame($expectedLineNo, $object->getLineNumber());
+            $this->assertSame($expectedLine, $object->getLine());
         }
 
         $this->assertNull(
@@ -79,6 +112,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
                     array(
                         'type'   => 'text',
                         'lineno' => 1,
+                        'line'   => '"test"',
                         'value'  => 'test',
                     ),
                 ),
@@ -89,6 +123,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
                     array(
                         'type'   => 'msgid',
                         'lineno' => 1,
+                        'line'   => 'msgid "test"',
                         'value'  => 'test',
                     ),
                 ),
@@ -99,6 +134,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
                     array(
                         'type'   => 'msgstr',
                         'lineno' => 1,
+                        'line'   => 'msgstr "test"',
                         'value'  => 'test',
                     ),
                 ),
@@ -109,6 +145,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
                     array(
                         'type'   => 'msgid_plural',
                         'lineno' => 1,
+                        'line'   => 'msgid_plural "test"',
                         'value'  => 'test',
                     ),
                 ),
@@ -119,16 +156,19 @@ class LexerTest extends \PHPUnit_Framework_TestCase
                     array(
                         'type'   => 'msgid_plural',
                         'lineno' => 1,
+                        'line'   => 'msgid_plural "test"',
                         'value'  => 'test',
                     ),
                     array(
                         'type'   => 'msgstr_plural',
                         'lineno' => 2,
+                        'line'   => 'msgstr[0] "plural1"',
                         'value'  => 'plural1',
                     ),
                     array(
                         'type'   => 'msgstr_plural',
                         'lineno' => 3,
+                        'line'   => 'msgstr[1] "plural2"',
                         'value'  => 'plural2',
                     ),
                 ),
@@ -139,26 +179,31 @@ class LexerTest extends \PHPUnit_Framework_TestCase
                     array(
                         'type'   => 'comment',
                         'lineno' => 1,
+                        'line'   => '# Comment',
                         'value'  => 'Comment',
                     ),
                     array(
                         'type'   => 'reference',
                         'lineno' => 2,
+                        'line'   => '#:Reference',
                         'value'  => 'Reference',
                     ),
                     array(
                         'type'   => 'extracted_comment',
                         'lineno' => 3,
+                        'line'   => '#. extracted comment',
                         'value'  => 'extracted comment',
                     ),
                     array(
                         'type'   => 'flag',
                         'lineno' => 4,
+                        'line'   => '#,  a flag',
                         'value'  => 'a flag',
                     ),
                     array(
                         'type'   => 'previous_translated',
                         'lineno' => 5,
+                        'line'   => '#| previous translated string',
                         'value'  => 'previous translated string',
                     ),
                 ),
@@ -169,11 +214,13 @@ class LexerTest extends \PHPUnit_Framework_TestCase
                     array(
                         'type'   => 'msgid',
                         'lineno' => 1,
+                        'line'   => 'msgid "testid"',
                         'value'  => 'testid',
                     ),
                     array(
                         'type'   => 'msgstr',
                         'lineno' => 2,
+                        'line'   => 'msgstr "teststring"',
                         'value'  => 'teststring',
                     ),
                 ),

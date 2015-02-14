@@ -47,11 +47,18 @@ interface LexerInterface
      * @return Fabiang\Msgfmt\Parser\Gettext\Lexer\TokenInterface
      */
     public function getAdvancedToken();
+    
+    /**
+     * Return current line string.
+     * 
+     * @return string
+     */
+    public function getLine();
 
     /**
      * Return current line number.
      *
      * @return integer
      */
-    public function getCurrentLine();
+    public function getLineNumber();
 }

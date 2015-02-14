@@ -277,11 +277,19 @@ class Lexer implements LexerInterface
         next($this->input);
         return $this->line;
     }
+    
+    /**
+     * {@inheritDoc}
+     */
+    public function getLine()
+    {
+        return $this->line;
+    }
 
     /**
      * {@inheritDoc}
      */
-    public function getCurrentLine()
+    public function getLineNumber()
     {
         return $this->lineno;
     }
