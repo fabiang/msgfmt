@@ -1,8 +1,7 @@
-<?xml version="1.0"?>
+<?php
 
-<!--
 /**
- * Mfgfmt library.
+ * Msgmft library.
  *
  * Copyright (c) 2015 Fabian Grutschus
  * All rights reserved.
@@ -31,38 +30,16 @@
  *
  * @author Fabian Grutschus <f.grutschus@lubyte.de>
  */
--->
 
-<phpunit
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.5/phpunit.xsd"
-    bootstrap="./bootstrap.php"
-    colors="true"
-    convertErrorsToExceptions="true"
-    convertNoticesToExceptions="true"
-    convertWarningsToExceptions="true"
-    forceCoversAnnotation="true"
-    strict="true"
-    beStrictAboutTestsThatDoNotTestAnything="true"
-    checkForUnintentionallyCoveredCode="true"
-    beStrictAboutOutputDuringTests="true"
-    beStrictAboutTestSize="true"
-    beStrictAboutTodoAnnotatedTests="true">
+namespace Fabiang\Msgfmt\Parser\Gettext\Lexer;
 
-        <testsuites>
-            <testsuite name="Fabiang_Msgfmt">
-                <directory>src/</directory>
-            </testsuite>
-        </testsuites>
+/**
+ *
+ *
+ * @author Fabian Grutschus <f.grutschus@lubyte.de>
+ */
+interface SupportedTokenInterface
+{
 
-        <filter>
-            <whitelist>
-                <directory>../src/</directory>
-            </whitelist>
-        </filter>
-
-        <php>
-            <ini name="error_reporting" value="-1"/>
-            <ini name="date.timezone" value="Europe/Berlin"/>
-        </php>
-</phpunit>
+    public function getPossibleTokens();
+}

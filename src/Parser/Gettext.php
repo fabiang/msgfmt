@@ -35,6 +35,12 @@ namespace Fabiang\Msgfmt\Parser;
 
 use Fabiang\Msgfmt\Translation\TranslationCollection;
 use Fabiang\Msgfmt\Translation\Translation;
+use Fabiang\Msgfmt\Parser\Gettext\LexerInterface;
+use Fabiang\Msgfmt\Parser\Gettext\Lexer;
+use RuntimeException;
+use Fabiang\Msgfmt\Parser\Gettext\Lexer\SupportedTokenInterface;
+use Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\Msgid;
+use Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\MsgidPlural;
 
 /**
  *
@@ -44,18 +50,55 @@ use Fabiang\Msgfmt\Translation\Translation;
 class Gettext implements ParserInterface
 {
 
+    protected $lexer;
+
+    public function __construct(LexerInterface $lexer = null)
+    {
+        if (null === $lexer) {
+            $lexer = new Lexer;
+        }
+
+        $this->lexer = $lexer;
+    }
+
     public function parse($string)
     {
         $collection = new TranslationCollection;
 
-        $normalizedString = str_replace(array("\r\n", "\r"), "\n", $string);
-        $lines            = explode("\n", $normalizedString);
+        $this->lexer->setInput($string);
+        $previousToken = null;
+        $translation   = null;
+        $msgid         = null;
+        $translations  = array();
+        while (null !== ($token = $this->lexer->getAdvancedToken())) {
 
-        foreach ($lines as $line) {
-            // skip new lines
-            if ('' === $line) {
-                continue;
+            if ($previousToken instanceof SupportedTokenInterface) {
+                $currentClass = get_class($token);
+
+                if (!in_array($currentClass, $previousToken->getPossibleTokens())) {
+                    throw new RuntimeException(sprintf(
+                        'Unexpected token "%s" with value "%s" on line %d, expected one of "%s"',
+                        $token->getType(),
+                        $token->getValue(),
+                        $token->getLine(),
+                        implode(', ', $previousToken->getPossibleTokens())
+                    ));
+                }
             }
+
+            if ($token instanceof Msgid) {
+                if (null === $translation) {
+                    $msgid = $token->getValue();
+                    $translations = array();
+                } else {
+                    $translation = new Translation($msgid, $translations);
+                    $collection->append($translation);
+                    $translation = null;
+                }
+
+            }
+
+            $previousToken = $token;
         }
 
         return $collection;

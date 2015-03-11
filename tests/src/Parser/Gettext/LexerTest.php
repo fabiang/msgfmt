@@ -74,32 +74,33 @@ class LexerTest extends \PHPUnit_Framework_TestCase
      * @covers ::scanPreviousTranslated
      * @covers ::scanTranslatorComment
      * @covers ::scan
+     * @covers ::setInput
      * @uses Fabiang\Msgfmt\Parser\Gettext\Lexer::__construct
      * @uses Fabiang\Msgfmt\Parser\Gettext\Lexer\Token
      * @dataProvider provideInput
      */
     public function testGetAdvancedToken($expected, $input)
     {
-        $object = new Lexer($input);
+        $this->object->setInput($input);
 
         foreach ($expected as $expectedToken) {
-            $currentToken = $object->getAdvancedToken();
+            $currentToken = $this->object->getAdvancedToken();
 
             $expectedType   = $expectedToken['type'];
             $expectedLineNo = $expectedToken['lineno'];
             $expectedLine   = $expectedToken['line'];
             $expectedValue  = $expectedToken['value'];
 
-            $this->assertInstanceOf('Fabiang\Msgfmt\Parser\Gettext\Lexer\Token', $currentToken);
+            $this->assertInstanceOf('Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\\' . $expectedType, $currentToken);
             $this->assertSame($expectedType, $currentToken->getType());
             $this->assertSame($expectedLineNo, $currentToken->getLine());
             $this->assertSame($expectedValue, $currentToken->getValue());
-            $this->assertSame($expectedLineNo, $object->getLineNumber());
-            $this->assertSame($expectedLine, $object->getLine());
+            $this->assertSame($expectedLineNo, $this->object->getLineNumber());
+            $this->assertSame($expectedLine, $this->object->getLine());
         }
 
         $this->assertNull(
-            $object->getAdvancedToken(),
+            $this->object->getAdvancedToken(),
             'There shouldn\'t be a token left after lexing the input data'
         );
     }
@@ -110,7 +111,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             array(
                 'expected' => array(
                     array(
-                        'type'   => 'text',
+                        'type'   => 'Text',
                         'lineno' => 1,
                         'line'   => '"test"',
                         'value'  => 'test',
@@ -121,7 +122,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             array(
                 'expected' => array(
                     array(
-                        'type'   => 'msgid',
+                        'type'   => 'Msgid',
                         'lineno' => 1,
                         'line'   => 'msgid "test"',
                         'value'  => 'test',
@@ -132,7 +133,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             array(
                 'expected' => array(
                     array(
-                        'type'   => 'msgstr',
+                        'type'   => 'Msgstr',
                         'lineno' => 1,
                         'line'   => 'msgstr "test"',
                         'value'  => 'test',
@@ -143,7 +144,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             array(
                 'expected' => array(
                     array(
-                        'type'   => 'msgid_plural',
+                        'type'   => 'MsgidPlural',
                         'lineno' => 1,
                         'line'   => 'msgid_plural "test"',
                         'value'  => 'test',
@@ -154,19 +155,19 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             array(
                 'expected' => array(
                     array(
-                        'type'   => 'msgid_plural',
+                        'type'   => 'MsgidPlural',
                         'lineno' => 1,
                         'line'   => 'msgid_plural "test"',
                         'value'  => 'test',
                     ),
                     array(
-                        'type'   => 'msgstr_plural',
+                        'type'   => 'MsgstrPlural',
                         'lineno' => 2,
                         'line'   => 'msgstr[0] "plural1"',
                         'value'  => 'plural1',
                     ),
                     array(
-                        'type'   => 'msgstr_plural',
+                        'type'   => 'MsgstrPlural',
                         'lineno' => 3,
                         'line'   => 'msgstr[1] "plural2"',
                         'value'  => 'plural2',
@@ -177,31 +178,31 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             array(
                 'expected' => array(
                     array(
-                        'type'   => 'comment',
+                        'type'   => 'Comment',
                         'lineno' => 1,
                         'line'   => '# Comment',
                         'value'  => 'Comment',
                     ),
                     array(
-                        'type'   => 'reference',
+                        'type'   => 'Reference',
                         'lineno' => 2,
                         'line'   => '#:Reference',
                         'value'  => 'Reference',
                     ),
                     array(
-                        'type'   => 'extracted_comment',
+                        'type'   => 'ExtractedComment',
                         'lineno' => 3,
                         'line'   => '#. extracted comment',
                         'value'  => 'extracted comment',
                     ),
                     array(
-                        'type'   => 'flag',
+                        'type'   => 'Flag',
                         'lineno' => 4,
                         'line'   => '#,  a flag',
                         'value'  => 'a flag',
                     ),
                     array(
-                        'type'   => 'previous_translated',
+                        'type'   => 'PreviousTranslated',
                         'lineno' => 5,
                         'line'   => '#| previous translated string',
                         'value'  => 'previous translated string',
@@ -212,13 +213,13 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             array(
                 'expected' => array(
                     array(
-                        'type'   => 'msgid',
+                        'type'   => 'Msgid',
                         'lineno' => 1,
                         'line'   => 'msgid "testid"',
                         'value'  => 'testid',
                     ),
                     array(
-                        'type'   => 'msgstr',
+                        'type'   => 'Msgstr',
                         'lineno' => 2,
                         'line'   => 'msgstr "teststring"',
                         'value'  => 'teststring',
@@ -231,6 +232,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ::getNormalizedInput
+     * @covers ::setInput
      * @covers ::__construct
      */
     public function testGetNormalizedInput()

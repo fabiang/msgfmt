@@ -35,6 +35,16 @@ namespace Fabiang\Msgfmt\Parser\Gettext;
 
 use Fabiang\Msgfmt\Parser\Gettext\Lexer\Token;
 use Fabiang\Msgfmt\Parser\Gettext\Lexer\TokenInterface;
+use Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\Comment;
+use Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\ExtractedComment;
+use Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\Flag;
+use Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\Msgid;
+use Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\MsgidPlural;
+use Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\Msgstr;
+use Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\MsgstrPlural;
+use Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\PreviousTranslated;
+use Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\Reference;
+use Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\Text;
 
 /**
  *
@@ -66,15 +76,49 @@ class Lexer implements LexerInterface
     protected $lineno = 1;
 
     /**
+     * supported token types.
+     *
+     * Mapping from type to token class.
+     *
+     * @var array
+     */
+    protected $supportedTypes = array(
+        'Comment'            => 'Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\Comment',
+        'ExtractedComment'   => 'Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\ExtractedComment',
+        'Flag'               => 'Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\Flag',
+        'Msgid'              => 'Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\Msgid',
+        'MsgidPlural'        => 'Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\MsgidPlural',
+        'Msgstr'             => 'Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\Msgstr',
+        'MsgstrPlural'       => 'Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\MsgstrPlural',
+        'PreviousTranslated' => 'Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\PreviousTranslated',
+        'Reference'          => 'Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\Reference',
+        'Text'               => 'Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\Text',
+    );
+
+    /**
      * Constructor.
      *
      * @param string $input
      */
-    public function __construct($input)
+    public function __construct($input = null)
+    {
+        if (!empty($input)) {
+            $this->setInput($input);
+        }
+    }
+
+    /**
+     * Set input data.
+     *
+     * @param string $input
+     */
+    public function setInput($input)
     {
         // we normalize the line breaks, explode the string by the line break and remove empty lines
         // but we maintain the array index, since they match the line numbers
-        $this->input = array_filter(explode("\n", str_replace(array("\r\n", "\r"), "\n", $input)));
+        $this->input  = array_filter(explode("\n", str_replace(array("\r\n", "\r"), "\n", $input)));
+        $this->line   = null;
+        $this->lineno = 1;
     }
 
     /**
@@ -124,7 +168,7 @@ class Lexer implements LexerInterface
      */
     protected function scanText()
     {
-        return $this->scan('text', '/^"(.+)"$/');
+        return $this->scan('Text', '/^"(.+)"$/');
     }
 
     /**
@@ -134,7 +178,7 @@ class Lexer implements LexerInterface
      */
     protected function scanId()
     {
-        return $this->scanObject('msgid');
+        return $this->scanObject('msgid', 'Msgid');
     }
 
     /**
@@ -144,7 +188,7 @@ class Lexer implements LexerInterface
      */
     protected function scanIdPlural()
     {
-        return $this->scanObject('msgid_plural');
+        return $this->scanObject('msgid_plural', 'MsgidPlural');
     }
 
     /**
@@ -154,7 +198,7 @@ class Lexer implements LexerInterface
      */
     protected function scanStringPlural()
     {
-        return $this->scan('msgstr_plural', '/^msgstr\[\d+\] "(.+)"$/');
+        return $this->scan('MsgstrPlural', '/^msgstr\[\d+\] "(.+)"$/');
     }
 
     /**
@@ -164,7 +208,7 @@ class Lexer implements LexerInterface
      */
     protected function scanString()
     {
-        return $this->scanObject('msgstr');
+        return $this->scanObject('msgstr', 'Msgstr');
     }
 
     /**
@@ -174,7 +218,7 @@ class Lexer implements LexerInterface
      */
     protected function scanExtractedComment()
     {
-        return $this->scan('extracted_comment', '/^#\.\s*(.+)\s*$/');
+        return $this->scan('ExtractedComment', '/^#\.\s*(.+)\s*$/');
     }
 
     /**
@@ -184,7 +228,7 @@ class Lexer implements LexerInterface
      */
     protected function scanReference()
     {
-        return $this->scan('reference', '/^#:\s*(.+)\s*$/');
+        return $this->scan('Reference', '/^#:\s*(.+)\s*$/');
     }
 
     /**
@@ -194,7 +238,7 @@ class Lexer implements LexerInterface
      */
     protected function scanFlag()
     {
-        return $this->scan('flag', '/^#,\s*(.+)\s*$/');
+        return $this->scan('Flag', '/^#,\s*(.+)\s*$/');
     }
 
     /**
@@ -204,7 +248,7 @@ class Lexer implements LexerInterface
      */
     protected function scanPreviousTranslated()
     {
-        return $this->scan('previous_translated', '/^#\|\s*(.+)\s*$/');
+        return $this->scan('PreviousTranslated', '/^#\|\s*(.+)\s*$/');
     }
 
     /**
@@ -214,7 +258,7 @@ class Lexer implements LexerInterface
      */
     protected function scanTranslatorComment()
     {
-        return $this->scan('comment', '/^#\s*(.+)\s*$/');
+        return $this->scan('Comment', '/^#\s*(.+)\s*$/');
     }
 
     /**
@@ -226,12 +270,13 @@ class Lexer implements LexerInterface
      * type "string"
      * </code>
      *
+     * @param string $string
      * @param string $type
      * @return Token|null
      */
-    protected function scanObject($type)
+    protected function scanObject($string, $type)
     {
-        return $this->scan($type, "/^$type \"(.+)\"$/");
+        return $this->scan($type, "/^$string \"(.+)\"$/");
     }
 
     /**
@@ -260,7 +305,14 @@ class Lexer implements LexerInterface
      */
     public function takeToken($type, $value = null)
     {
-        return new Token($type, $this->lineno, $value);
+        if (isset($this->supportedTypes[$type])) {
+            $tokenClass = $this->supportedTypes[$type];
+            $token = new $tokenClass($type, $this->lineno, $value);
+        } else {
+            $token = new Token($type, $this->lineno, $value);
+        }
+
+        return $token;
     }
 
     /**
@@ -277,7 +329,7 @@ class Lexer implements LexerInterface
         next($this->input);
         return $this->line;
     }
-    
+
     /**
      * {@inheritDoc}
      */

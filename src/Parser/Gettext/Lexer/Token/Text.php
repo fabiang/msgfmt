@@ -1,8 +1,7 @@
-<?xml version="1.0"?>
+<?php
 
-<!--
 /**
- * Mfgfmt library.
+ * Msgmft library.
  *
  * Copyright (c) 2015 Fabian Grutschus
  * All rights reserved.
@@ -31,38 +30,29 @@
  *
  * @author Fabian Grutschus <f.grutschus@lubyte.de>
  */
--->
 
-<phpunit
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.5/phpunit.xsd"
-    bootstrap="./bootstrap.php"
-    colors="true"
-    convertErrorsToExceptions="true"
-    convertNoticesToExceptions="true"
-    convertWarningsToExceptions="true"
-    forceCoversAnnotation="true"
-    strict="true"
-    beStrictAboutTestsThatDoNotTestAnything="true"
-    checkForUnintentionallyCoveredCode="true"
-    beStrictAboutOutputDuringTests="true"
-    beStrictAboutTestSize="true"
-    beStrictAboutTodoAnnotatedTests="true">
+namespace Fabiang\Msgfmt\Parser\Gettext\Lexer\Token;
 
-        <testsuites>
-            <testsuite name="Fabiang_Msgfmt">
-                <directory>src/</directory>
-            </testsuite>
-        </testsuites>
+use Fabiang\Msgfmt\Parser\Gettext\Lexer\Token;
+use Fabiang\Msgfmt\Parser\Gettext\Lexer\TokenInterface;
+use Fabiang\Msgfmt\Parser\Gettext\Lexer\SupportedTokenInterface;
 
-        <filter>
-            <whitelist>
-                <directory>../src/</directory>
-            </whitelist>
-        </filter>
+/**
+ *
+ *
+ * @author Fabian Grutschus <f.grutschus@lubyte.de>
+ */
+class Text extends Token implements TokenInterface, SupportedTokenInterface
+{
 
-        <php>
-            <ini name="error_reporting" value="-1"/>
-            <ini name="date.timezone" value="Europe/Berlin"/>
-        </php>
-</phpunit>
+    public function getPossibleTokens()
+    {
+        return array(
+            'Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\Text',
+            'Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\Msgid',
+            'Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\MsgidPlural',
+            'Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\Msgstr',
+            'Fabiang\Msgfmt\Parser\Gettext\Lexer\Token\MsgstrPlural',
+        );
+    }
+}
